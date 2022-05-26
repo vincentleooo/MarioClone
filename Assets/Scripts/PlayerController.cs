@@ -43,9 +43,10 @@ public class PlayerController : MonoBehaviour
 			Debug.Log("Collided with Gomba!");
 			Vector2 enemyPosition = new Vector2(2.5f, -0.46f);
 			Vector2 marioPosition = new Vector2(0.0f, 0.0f);
-			Thread.Sleep(200);
 			marioBody.transform.position = marioPosition;
 			enemyLocation.transform.position = enemyPosition;
+			Thread.Sleep(500);
+			marioBody.velocity = Vector2.zero;
 		}
 	}
 
@@ -89,7 +90,7 @@ public class PlayerController : MonoBehaviour
 		// GetAxisRaw bypasses GetAxis smoothing when taking fingers of key press. 
 		// https://stackoverflow.com/questions/58914962/rigidbody-not-stopping-instantly-when-setting-its-velocity-to-0
 
-		if (Mathf.Abs(moveHorizontal) > 0f)
+		if (Mathf.Abs(moveHorizontal) > 0f && Time.timeScale != 0.0f)
 		{
 			marioBody.WakeUp();
 			Vector2 movement = new Vector2(moveHorizontal, 0);
