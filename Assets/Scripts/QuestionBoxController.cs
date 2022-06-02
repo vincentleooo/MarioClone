@@ -22,7 +22,7 @@ public class QuestionBoxController : MonoBehaviour
 		{
 			hit = true;
 			// spawn the mushroom prefab slightly above the box
-			rigidBody.AddForce(new  Vector2(0, rigidBody.mass*20), ForceMode2D.Impulse);
+			rigidBody.AddForce(new Vector2(0, rigidBody.mass*20), ForceMode2D.Impulse);
 			Instantiate(consummablePrefab, new Vector3(this.transform.position.x, this.transform.position.y + 1.0f, this.transform.position.z), Quaternion.identity);
 			StartCoroutine(DisableHittable());
 		}

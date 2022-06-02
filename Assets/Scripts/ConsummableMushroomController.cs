@@ -21,6 +21,7 @@ public class ConsummableMushroomController : MonoBehaviour
 		{
 			multiplier = -1;
 		}
+		mushroomBody.AddForce(new Vector2(0, mushroomBody.mass*20), ForceMode2D.Impulse);
 	}
 
 	void OnCollisionEnter2D(Collision2D col)
@@ -53,7 +54,8 @@ public class ConsummableMushroomController : MonoBehaviour
 	// Update is called once per frame
 	void Update()
 	{
-		Vector2 speed = new Vector2(multiplier * 5, 0);
+		float speedUp = mushroomBody.velocity.y;
+		Vector2 speed = new Vector2(multiplier * 5, speedUp);
 
 		mushroomBody.velocity = speed;
 
