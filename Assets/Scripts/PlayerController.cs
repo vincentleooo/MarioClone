@@ -6,8 +6,10 @@ using System.Threading;
 
 public class PlayerController : MonoBehaviour
 {
+	private Animator marioAnimator;
 	public float speed;
 	private Rigidbody2D marioBody;
+	private AudioSource marioAudio;
 	// Start is called before the first frame update
 	void Start()
 	{
@@ -15,6 +17,8 @@ public class PlayerController : MonoBehaviour
 		Application.targetFrameRate = 30;
 		marioBody = GetComponent<Rigidbody2D>();
 		marioSprite = GetComponent<SpriteRenderer>();
+		marioAnimator = GetComponent<Animator>();
+		marioAudio = GetComponent<AudioSource>();
 	}
 
 	public float maxSpeed = 10;
@@ -26,7 +30,7 @@ public class PlayerController : MonoBehaviour
 	// called when the cube hits the floor
 	void OnCollisionEnter2D(Collision2D col)
 	{
-		if (col.gameObject.CompareTag("Ground"))
+		if (col.gameObject.CompareTag("Ground") || col.gameObject.CompareTag("Obstacles"))
 		{
 			onGroundState = true; // back on ground
 			countScoreState = false; // reset score state
@@ -40,7 +44,7 @@ public class PlayerController : MonoBehaviour
 		{
 			Time.timeScale = 0.0f;
 			score = 0;
-			Debug.Log("Collided with Gomba!");
+			// Debug.Log("Collided with Gomba!");
 			Vector2 enemyPosition = new Vector2(2.5f, -0.46f);
 			Vector2 marioPosition = new Vector2(0.0f, 0.0f);
 			marioBody.transform.position = marioPosition;
@@ -57,15 +61,22 @@ public class PlayerController : MonoBehaviour
 
 	void Update()
 	{
+		// Skidding seems to not work well with GetAxisRaw as the acceleration is a bit different. With GetAxis, it works as well as expected.
 		// toggle state
-		if (Input.GetKeyDown("a") && faceRightState){
+		if (Input.GetKeyDown("a") && faceRightState)
+		{
 			faceRightState = false;
 			marioSprite.flipX = true;
+			if (Mathf.Abs(marioBody.velocity.x) > 1.0)
+				marioAnimator.SetTrigger("onSkid");
 		}
 
-		if (Input.GetKeyDown("d") && !faceRightState){
+		if (Input.GetKeyDown("d") && !faceRightState)
+		{
 			faceRightState = true;
 			marioSprite.flipX = false;
+			if (Mathf.Abs(marioBody.velocity.x) > 1.0)
+				marioAnimator.SetTrigger("onSkid");
 		}
 		// when jumping, and Gomba is near Mario and we haven't registered our score
 		if (!onGroundState && countScoreState)
@@ -74,9 +85,12 @@ public class PlayerController : MonoBehaviour
 			{
 				countScoreState = false;
 				score++;
-				Debug.Log(score);
+				// Debug.Log(score);
 			}
 		}
+		marioAnimator.SetFloat("xSpeed", Mathf.Abs(marioBody.velocity.x));
+		marioAnimator.SetBool("onGround", onGroundState);
+		// Debug.Log(Mathf.Abs(marioBody.velocity.x));
 	}
 
 	void FixedUpdate()
@@ -86,7 +100,7 @@ public class PlayerController : MonoBehaviour
 		// Debug.Log("no space");
 
 		// Dynamic Rigidbody2D
-		float moveHorizontal = Input.GetAxisRaw("Horizontal");
+		float moveHorizontal = Input.GetAxis("Horizontal");
 		// GetAxisRaw bypasses GetAxis smoothing when taking fingers of key press. 
 		// https://stackoverflow.com/questions/58914962/rigidbody-not-stopping-instantly-when-setting-its-velocity-to-0
 
@@ -111,5 +125,10 @@ public class PlayerController : MonoBehaviour
 			onGroundState = false;
 			countScoreState = true; //check if Gomba is underneath
 		}
+	}
+
+	void PlayJumpSound()
+	{
+		marioAudio.PlayOneShot(marioAudio.clip);
 	}
 }
