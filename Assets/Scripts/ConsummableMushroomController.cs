@@ -28,21 +28,39 @@ public class ConsummableMushroomController : MonoBehaviour
 		if (col.gameObject.CompareTag("GroundObs"))
 		{
 			Vector2 movement = mushroomBody.velocity;
-			mushroomBody.AddForce(-movement * 50);
+			multiplier = multiplier * -1;
 			Debug.Log("Hit");
+		};
+		if (col.gameObject.CompareTag("Ground"))
+		{
+			System.Random random = new System.Random();
+			float randomNumber = random.Next(100);
+			if (randomNumber >= 50)
+			{
+				multiplier = 1;
+			}
+			else
+			{
+				multiplier = -1;
+			}
+		};
+		if (col.gameObject.CompareTag("Player"))
+		{
+			multiplier = 0;
 		};
 	}
 
 	// Update is called once per frame
 	void Update()
-	{	
+	{
 		Vector2 speed = new Vector2(multiplier * 5, 0);
 
 		mushroomBody.velocity = speed;
 
 	}
 
-	void  OnBecameInvisible(){
-	Destroy(gameObject);	
-}
+	void OnBecameInvisible()
+	{
+		Destroy(gameObject);
+	}
 }
