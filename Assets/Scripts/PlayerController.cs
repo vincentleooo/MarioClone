@@ -10,6 +10,7 @@ public class PlayerController : MonoBehaviour
 	public float speed;
 	private Rigidbody2D marioBody;
 	private AudioSource marioAudio;
+	private ParticleSystem[] particleSystems;
 	// Start is called before the first frame update
 	void Start()
 	{
@@ -19,11 +20,13 @@ public class PlayerController : MonoBehaviour
 		marioSprite = GetComponent<SpriteRenderer>();
 		marioAnimator = GetComponent<Animator>();
 		marioAudio = GetComponent<AudioSource>();
+		particleSystems = gameObject.GetComponentsInChildren<ParticleSystem>();
 	}
 
 	public float maxSpeed = 10;
 	public float upSpeed;
 	private bool onGroundState = true;
+	private bool justJumped = false;
 	private SpriteRenderer marioSprite;
 	private bool faceRightState = true;
 
@@ -88,6 +91,14 @@ public class PlayerController : MonoBehaviour
 				// Debug.Log(score);
 			}
 		}
+		if (onGroundState && justJumped)
+		{
+			justJumped = false;
+			foreach( ParticleSystem childPS in particleSystems )
+			{
+				childPS.Play();
+			}
+		}
 		marioAnimator.SetFloat("xSpeed", Mathf.Abs(marioBody.velocity.x));
 		marioAnimator.SetBool("onGround", onGroundState);
 		// Debug.Log(Mathf.Abs(marioBody.velocity.x));
@@ -124,6 +135,16 @@ public class PlayerController : MonoBehaviour
 			marioBody.AddForce(Vector2.up * upSpeed * 2, ForceMode2D.Impulse);
 			onGroundState = false;
 			countScoreState = true; //check if Gomba is underneath
+			justJumped = true;
+		}
+		if (marioBody.velocity.y < 0 && onGroundState) {
+			onGroundState = false;
+			countScoreState = true; //check if Gomba is underneath
+			justJumped = true;
+		}
+		if (marioBody.velocity.y == 0 && !onGroundState) {
+			onGroundState = true;
+			countScoreState = false; //check if Gomba is underneath
 		}
 	}
 
